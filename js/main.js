@@ -1,0 +1,13 @@
+import { Engine } from './engine.js';
+import { Input } from './input.js';
+import { AudioManager } from './audio.js';
+import { World } from './world.js';
+import { Renderer } from './renderer.js';
+import { loadGame, saveGame } from './save.js';
+const canvas=document.getElementById('game'), boot=document.getElementById('boot'), reset=document.getElementById('reset');
+const audio=new AudioManager(), input=new Input(canvas), renderer=new Renderer(canvas), world=new World(audio,loadGame()), engine=new Engine();
+canvas.addEventListener('pointerdown',()=>{audio.unlock();boot?.classList.add('hidden');},{passive:true});
+reset?.addEventListener('click',()=>{localStorage.removeItem('gourmetGuildIdle.v2');location.reload();});
+let saveTimer=0;
+engine.start((dt,time)=>{world.update(dt,input,renderer.width);renderer.render(world,input,time);saveTimer+=dt;if(saveTimer>=5){saveTimer=0;saveGame(world);}});
+addEventListener('pagehide',()=>saveGame(world));
